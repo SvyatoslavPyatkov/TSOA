@@ -8,10 +8,11 @@ const col = db.Sequelize.col;
 class LearnerController {
     async getLearners(req, res) {
         try {
-            const { page, size } = req.query;
+            const { size } = req.query;
+            const page = req.query.page - 1;
             const { limit, offset } = getPagination(page, LEARNERS_PAGE_SIZE);
 
-            const learners = await db.learnerModel.findAndCountAll({
+            const learners = await db.learnerModel.findAll({
                 limit, 
                 offset,
                 include: [{
@@ -19,7 +20,14 @@ class LearnerController {
                 }, {
                     model: db.jobModel
                 }, {
-                    model: db.groupModel
+                    model: db.groupModel,
+                    include: {
+                        model: db.eduProgramModel,
+                        include: {
+                            model: db.eduFormModel
+                        },
+                        attributes: {exclude: ['education_form_id']}
+                    }
                 }],
                 attributes: {exclude: ['passport_id', 'job_id', 'group_id']}
             });
@@ -145,11 +153,12 @@ class LearnerController {
 
     async searchLearner(req, res) {
         try {
-            const { page, size } = req.query;
+            const { size } = req.query;
+            const page = req.query.page - 1;
             const { limit, offset } = getPagination(page, SEARCH_LEARNERS_LIMIT);
             const { text: text } = req.query;
 
-            const learners = await db.learnerModel.findAndCountAll({
+            const learners = await db.learnerModel.findAll({
                 limit, 
                 offset,
                 include: {

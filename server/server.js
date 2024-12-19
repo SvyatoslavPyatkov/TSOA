@@ -1,15 +1,13 @@
 import express from 'express';
+import cors from 'cors';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
+import useragent from 'express-useragent';
 import db from './models/index.js';
 import multer from 'multer';
 
-// import routerEduProgram from './routers/educationPrograms/education_program.routes.js';
-// import routerLearner from './routers/learners/OLD_learner.routes.js';
-// import routerPassport from './routers/learners/OLD_passport.routes.js';
-// import routerUser from './routers/auth/user.routes.js';
-
 import { router as routerAuth} from './routers/auth/auth.routes.js';
+import { router as routerUsers} from './routers/auth/user.routes.js';
 import { router as routerLearner} from './routers/learners/learner.routes.js';
 import { router as routerPassport} from './routers/learners/passport.routes.js';
 import { router as routerJob} from './routers/learners/job.routes.js';
@@ -30,6 +28,12 @@ export const __dirname = dirname(__filename);
 
 const app = express();
 
+const corsOptions = {
+    origin : ['http://localhost:8000', 'http://localhost:4000'],
+    methods: 'GET,PUT,POST,DELETE,OPTIONS',
+    credentials: true,
+}
+
 const storageConfig = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, storageFolder);
@@ -39,22 +43,20 @@ const storageConfig = multer.diskStorage({
     },
 });
 
-app.set('port', 3000);
+app.set('port', 8000);
 app.use(express.json());
+app.use(cors(corsOptions));
 app.use(morgan('dev'));
+// app.use(morgan('default'));
 app.use(cookieParser());
+app.use(useragent.express());
 app.use(express.urlencoded({extended: false}));
 app.use(multer({storage:storageConfig}).single("filedata"));
 // app.use(express.static('uploads'));
 app.use('/', express.static(path.join(__dirname, '../dist')));
 
-// routerEduProgram(app);
-// routerGroup(app);
-// routerLearner(app);
-// routerPassport(app);
-// routerUser(app);
-
 app.use('/api/auth', routerAuth);
+app.use('/api/', routerUsers);
 app.use('/api/', routerFile);
 app.use('/api/', routerLearner);
 app.use('/api/', routerPassport);

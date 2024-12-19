@@ -8,10 +8,11 @@ const col = db.Sequelize.col;
 class JobController {
     async getJobs(req, res) {
         try {
-            const { page, size } = req.query;
+            const { size } = req.query;
+            const page = req.query.page - 1;
             const { limit, offset } = getPagination(page, JOBS_PAGE_SIZE);
 
-            const job = await db.jobModel.findAndCountAll({
+            const job = await db.jobModel.findAll({
                 limit, 
                 offset
             });
@@ -89,7 +90,7 @@ class JobController {
 
     async searchJob(req, res) {
         try {
-            const { text: text } = req.query;
+            const { name: name } = req.query;
             const { page, size } = req.query;
             const { limit, offset } = getPagination(page, SEARCH_JOBS_LIMIT);
 
@@ -97,7 +98,7 @@ class JobController {
                 limit, 
                 offset,
                 where: {
-                    name: { [Op.like]: '%' + text + '%' }
+                    name: { [Op.like]: '%' + name + '%' }
                 }
             });     
 

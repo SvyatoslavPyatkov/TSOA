@@ -9,10 +9,11 @@ class GroupController {
     
     async getGroups(req, res) {
         try {
-            const { page, size } = req.query;
+            const { size } = req.query;
+            const page = req.query.page - 1;
             const { limit, offset } = getPagination(page, GROUPS_PAGE_SIZE);
 
-            const groups = await db.groupModel.findAndCountAll({
+            const groups = await db.groupModel.findAll({
                 limit, 
                 offset,
                 include: {
@@ -21,8 +22,7 @@ class GroupController {
                         model: db.eduFormModel
                     },
                     attributes: {exclude: ['education_form_id']}
-                },
-                attributes: {exclude: ['education_program_id']}
+                }
             });
 
             return res.status(200).json(groups);
@@ -61,7 +61,16 @@ class GroupController {
 
     async getGroupById(req, res) {
         try {
-            const group = await db.groupModel.findByPk(req.params["id"]);
+            const group = await db.groupModel.findByPk(req.params["id"], {
+                include: {
+                    model: db.eduProgramModel,
+                    include: {
+                        model: db.eduFormModel
+                    },
+                    attributes: {exclude: ['education_form_id']}
+                },
+                attributes: {exclude: ['education_program_id']}
+            });
             return res.status(200).json(group);
         } catch (err) {
             console.log(err);
@@ -75,7 +84,7 @@ class GroupController {
                 name: name,
                 education_program_id: education_program_id
             } = req.body;
-            await db.learnerModel.update({ 
+            await db.groupModel.update({ 
                 name: name,
                 education_program_id: education_program_id
             },{
@@ -83,7 +92,16 @@ class GroupController {
                     id: req.params["id"]
                 }
             });
-            const group = await db.groupModel.findByPk(req.params["id"]);
+            const group = await db.groupModel.findByPk(req.params["id"], {
+                include: {
+                    model: db.eduProgramModel,
+                    include: {
+                        model: db.eduFormModel
+                    },
+                    attributes: {exclude: ['education_form_id']}
+                },
+                attributes: {exclude: ['education_program_id']}
+            });
             return res.status(200).json(group);
         } catch (err) {
             console.log(err);
@@ -98,7 +116,7 @@ class GroupController {
                     id: req.params["id"]
                 }
             });
-            return res.status(204).json();
+            return res.status(204).json({message: "Группа удалена успешно"});
         } catch (err) {
             console.log(err);
             res.status(400).json({ message: "Ошибка получения данных", err });
@@ -107,14 +125,17 @@ class GroupController {
 
     async searchGroup(req, res) {
         try {
+            const { size } = req.query;
+            const page = req.query.page - 1;
+            const { limit, offset } = getPagination(page, SEARCH_LEARNERS_LIMIT);
             const { text: text } = req.query;
 
             const group = await db.groupModel.findAll({
-                raw: true,
+                limit, 
+                offset,
                 where: {
                     name: { [Op.like]: '%' + text + '%' }
                 }
-                // limit: 10
             });     
 
             return res.status(200).json(group);

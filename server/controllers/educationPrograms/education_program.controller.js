@@ -8,9 +8,10 @@ const col = db.Sequelize.col;
 class EduProgramController {
     async getEducationPrograms(req, res) {
         try {
-            const { page, size } = req.query;
+            const { size } = req.query;
+            const page = req.query.page - 1;
             const { limit, offset } = getPagination(page, EDUCATION_PROGRAMS_PAGE_SIZE);
-            const eduProgram = await db.eduProgramModel.findAndCountAll({
+            const eduProgram = await db.eduProgramModel.findAll({
                 limit, 
                 offset,
                 include: {
@@ -18,8 +19,7 @@ class EduProgramController {
                 },
                 attributes: {exclude: ['education_form_id']}
             });
-            const response = getPagingData(eduProgram, page, limit);
-            return res.status(200).json(response);
+            return res.status(200).json(eduProgram);
         } catch (err) {
             console.log(err);
             return res.status(400).json({ message: "Ошибка получения данных", err });
@@ -44,10 +44,22 @@ class EduProgramController {
                 return res.status(400).json({ message: "Данная форма обучения уже существует" })
             }
 
-            const eduProgram = await db.eduProgramModel.create({
+            let eduProgram = await db.eduProgramModel.create({
                 name: name,
                 duration: duration,
                 education_form_id: education_form_id
+            });
+
+            eduProgram = await db.eduProgramModel.findOne({ 
+                where: { 
+                    name: name,
+                    duration: duration,
+                    education_form_id: education_form_id
+                },
+                include: {
+                    model: db.eduFormModel
+                },
+                attributes: {exclude: ['education_form_id']}
             });
             return res.status(201).json(eduProgram);
         } catch (err) {
@@ -58,7 +70,12 @@ class EduProgramController {
 
     async getEducationProgramById(req, res) {
         try {
-            const eduProgram = await db.eduProgramModel.findByPk(req.params["id"]);
+            const eduProgram = await db.eduProgramModel.findByPk(req.params["id"], {
+                include: {
+                    model: db.eduFormModel
+                },
+                attributes: {exclude: ['education_form_id']}
+            });
             return res.status(200).json(eduProgram);
         } catch (err) {
             console.log(err);
@@ -73,7 +90,7 @@ class EduProgramController {
                 duration: duration,
                 education_form_id: education_form_id
             } = req.body;
-            await db.jobModel.update({ 
+            await db.eduProgramModel.update({ 
                 name: name,
                 duration: duration,
                 education_form_id: education_form_id
@@ -82,7 +99,12 @@ class EduProgramController {
                     id: req.params["id"]
                 }
             });
-            const eduProgram = await db.eduProgramModel.findByPk(req.params["id"]);
+            const eduProgram = await db.eduProgramModel.findByPk(req.params["id"], {
+                include: {
+                    model: db.eduFormModel
+                },
+                attributes: {exclude: ['education_form_id']}
+            });
             return res.status(200).json(eduProgram);
         } catch (err) {
             console.log(err);
@@ -107,10 +129,11 @@ class EduProgramController {
     async searchEducationProgram(req, res) {
         try {
             const { text: text } = req.query;
-            const { page, size } = req.query;
+            const { size } = req.query;
+            const page = req.query.page - 1;
             const { limit, offset } = getPagination(page, EDUCATION_PROGRAMS_PAGE_SIZE);
 
-            const eduProgram = await db.eduProgramModel.findAndCountAll({
+            const eduProgram = await db.eduProgramModel.findAll({
                 limit, 
                 offset,
                 where: {
@@ -128,10 +151,11 @@ class EduProgramController {
 
     async getGroupsByEducationProgramId(req, res) {
         try {
-            const { page, size } = req.query;
+            const { size } = req.query;
+            const page = req.query.page - 1;
             const { limit, offset } = getPagination(page, EDUCATION_PROGRAMS_PAGE_SIZE);
 
-            const groups = await db.groupModel.findAndCountAll({
+            const groups = await db.groupModel.findAll({
                 limit, 
                 offset,
                 include: {

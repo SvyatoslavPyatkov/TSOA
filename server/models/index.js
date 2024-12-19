@@ -24,6 +24,7 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
     port: dbConfig.PORT,
     define: dbConfig.define,
     operatorsAliases: false
+    // logging: false
 });
 
 const db = {};

@@ -5,15 +5,15 @@ import { SEARCH_TYPES_LIMIT, SEARCH_TYPES_PAGE_SIZE } from '../../config/paginat
 import { getPagination } from '../../helpers/pagination.helper.js';
 
 import { __dirname } from '../../server.js';
-import uploadMiddleware from '../../middleware/upload.middleware.js';
 
 class FileController {
     async getFileTypes(req, res) {
         try {
-            const { page, size } = req.query;
+            const { size } = req.query;
+            const page = req.query.page - 1;
             const { limit, offset } = getPagination(page, SEARCH_TYPES_LIMIT);
 
-            const fileTypes = await db.fileTypeModel.findAndCountAll({
+            const fileTypes = await db.fileTypeModel.findAll({
                 limit, 
                 offset
             });
@@ -78,7 +78,8 @@ class FileController {
     async searchFileType(req, res) {
         try {
             const { name } = req.query;
-            const { page, size } = req.query;
+            const { size } = req.query;
+            const page = req.query.page - 1;
             const { limit, offset } = getPagination(page, SEARCH_TYPES_PAGE_SIZE);
 
             const forms = await db.fileTypeModel.findAndCountAll({

@@ -6,10 +6,11 @@ const Op = db.Sequelize.Op;
 class EduFormController {
     async getForms(req, res) {
         try {
-            const { page, size } = req.query;
+            const { size } = req.query;
+            const page = req.query.page - 1;
             const { limit, offset } = getPagination(page, EDUCATION_PROGRAMS_PAGE_SIZE);
 
-            const forms = await db.eduFormModel.findAndCountAll({ limit, offset });
+            const forms = await db.eduFormModel.findAll({ limit, offset });
 
             return res.status(200).json(forms);
         } catch (err) {
@@ -81,10 +82,11 @@ class EduFormController {
     async searchForm(req, res) {
         try {
             const { name } = req.query;
-            const { page, size } = req.query;
+            const { size } = req.query;
+            const page = req.query.page - 1;
             const { limit, offset } = getPagination(page, EDUCATION_PROGRAMS_PAGE_SIZE);
 
-            const forms = await db.eduFormModel.findAndCountAll({
+            const forms = await db.eduFormModel.findAll({
                 limit, 
                 offset,
                 where: {
@@ -104,10 +106,11 @@ class EduFormController {
 
     async searchProgramByForm(req, res) {
         try {
-            const { page, size } = req.query;
+            const { size } = req.query;
+            const page = req.query.page - 1;
             const { limit, offset } = getPagination(page, EDUCATION_PROGRAMS_PAGE_SIZE);
 
-            const programs = await db.eduProgramModel.findAndCountAll({
+            const programs = await db.eduProgramModel.findAll({
                 limit, 
                 offset,
                 include: {

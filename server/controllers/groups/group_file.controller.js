@@ -1,5 +1,6 @@
 import db from '../../models/index.js';
 import { FILES_PAGE_SIZE } from '../../config/pagination.config.js';
+import { getPagination } from '../../helpers/pagination.helper.js';
 import { storageFolder } from '../../config/multer.config.js';
 const Op = db.Sequelize.Op;
 const fn = db.Sequelize.fn;
@@ -10,10 +11,11 @@ class GroupFileController {
 
     async getGroupDocuments(req, res) {
         try {
-            const { page, size } = req.query;
+            const { size } = req.query;
+            const page = req.query.page - 1;
             const { limit, offset } = getPagination(page, FILES_PAGE_SIZE);
 
-            const files = await db.fileModel.findAndCountAll({
+            const files = await db.fileModel.findAll({
                 limit, 
                 offset,
                 include: [{

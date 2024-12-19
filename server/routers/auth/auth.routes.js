@@ -9,6 +9,5 @@ router.post('/registration', [
     check('password', 'Пароль должен быть больше 4 и меньше 30 символов.').trim().isLength({ min: 4, max: 30 })
 ], controller.registration);
 router.post('/login', controller.login);
-router.delete('/logout', controller.logout);
+router.delete('/logout', authMidleware, controller.logout);
 router.post('/refresh', authMidleware, controller.refresh);
-router.get('/users', controller.getUsers);

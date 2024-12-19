@@ -6,7 +6,7 @@ import authMidleware from '../../middleware/auth.midleware.js';
 router.get('/files/types', authMidleware, controller.getFileTypes);
 router.post('/files/types', authMidleware, controller.createFileType);
 router.put('/files/:id/file', authMidleware, controller.updateFileTypeById);
-router.delete('/files/:id', authMidleware, controller.deleteFileTypeById);
+router.delete('/files/types/:id', authMidleware, controller.deleteFileTypeById);
 router.post('/files/types/search', authMidleware, controller.searchFileType);
 
 router.get('/files/:id/file', authMidleware, controller.getFileById);

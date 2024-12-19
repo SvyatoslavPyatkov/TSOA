@@ -9,7 +9,8 @@ const where = db.Sequelize.where;
 class PassportController {
     async getPassports(req, res) {
         try {
-            const { page, size } = req.query;
+            const { size } = req.query;
+            const page = req.query.page - 1;
             const { limit, offset } = getPagination(page, PASSPORTS_PAGE_SIZE);
 
             const passports = await db.passportModel.findAndCountAll({
@@ -141,7 +142,8 @@ class PassportController {
     async searchPassport(req, res) {
         try {
             const { text: text } = req.body;
-            const { page, size } = req.query;
+            const { size } = req.query;
+            const page = req.query.page - 1;
             const { limit, offset } = getPagination(page, SEARCH_PASSPORT_PAGINATE);
 
             const passports = await db.passportModel.findAndCountAll({

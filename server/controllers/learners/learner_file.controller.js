@@ -9,10 +9,11 @@ class LearnerFileController {
 
     async getLearnerDocuments(req, res) {
         try {
-            const { page, size } = req.query;
+            const { size } = req.query;
+            const page = req.query.page - 1;
             const { limit, offset } = getPagination(page, FILES_PAGE_SIZE);
 
-            const files = await db.fileModel.findAndCountAll({
+            const files = await db.fileModel.findAll({
                 limit, 
                 offset,
                 include: [{
@@ -50,7 +51,7 @@ class LearnerFileController {
             const learner_id = req.params["id"];
             const learner = await LearnerModel.findByPk(learner_id);
             if (!learner) {
-                return res.status(400).json({ message: `Группа ${learner.name} не найдена` })
+                return res.status(400).json({ message: `Слушатель ${learner.name} не найден` })
             }
 
             const user = req.user;
